@@ -3,8 +3,8 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 export class CreateMillionUser1725525224605 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        const numUsers =  100//0000;
-        const chunkSize = 10//000; // Обработка данных порциями
+        const numUsers =  1000000;
+        const chunkSize = 10000; // Обработка данных порциями
         const insertQuery = `
         INSERT INTO "user"("firstName", "lastName", "age", "gender", "hasProblems")
         VALUES 
