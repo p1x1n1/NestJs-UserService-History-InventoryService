@@ -1,0 +1,43 @@
+version: '3.0'
+
+services:
+  history-service:
+    container_name: history-service
+    build:
+      context: ./history
+    env_file:
+      - ./history/.production.env
+    volumes:
+      - ./history:/app
+    ports:
+      - "${HISTORY_PORT}:${HISTORY_PORT}"
+    command: npm run start
+    depends_on:
+      - history-db
+      - rabbitmq
+    environment:
+      DATABASE_URL: postgres://${HISTORY_PG_USERNAME}:${HISTORY_PG_PASS}@${HISTORY_PG_HOST}:${HISTORY_PG_PORT}/${HISTORY_PG_DB}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+    restart: always
+
+  history-db:
+    container_name: history-db
+    image:  ${DB_IMAGE}
+    env_file:
+      - ./history/.production.env
+    environment:
+      POSTGRES_USER: ${HISTORY_PG_USERNAME}
+      POSTGRES_PASSWORD: ${HISTORY_PG_PASS}
+      POSTGRES_DB: ${HISTORY_PG_DB}
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - "${HISTORY_PG_PORT}:5432"
+    volumes:
+      - type: volume
+        source: pgdata-history
+        target: /var/lib/postgresql/data
+    restart: always
+
+volumes:
+  pgdata-history:
+    driver: local

@@ -1,0 +1,13 @@
+version: '3.0'
+
+services:
+  # RabbitMQ для общения между сервисами
+  rabbitmq:
+    container_name: rabbitmq
+    image: ${RABBITMQ_IMAGE}
+    env_file:
+      - .production.env
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+    restart: always

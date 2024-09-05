@@ -1,0 +1,10 @@
+# Исключение папки node_modules во всем проекте
+node_modules/
+
+# Прочие исключения
+.env
+.development.env
+.production.env
+dist/
+coverage/
+

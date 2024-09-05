@@ -1,0 +1,43 @@
+version: '3.0'
+
+services:
+  inventory-service:
+    container_name: inventory-service
+    build:
+      context: ./inventory
+    env_file:
+      - ./inventory/.production.env
+    volumes:
+      - ./inventory:/app
+    ports:
+      - "${INVENTORY_PORT}:${INVENTORY_PORT}"
+    command: npm run start
+    depends_on:
+      - inventory-db
+      - rabbitmq
+    environment:
+      DATABASE_URL: postgres://${INVENTORY_PG_USER}:${INVENTORY_PG_PASS}@${INVENTORY_PG_HOST}:${INVENTORY_PG_PORT}/${INVENTORY_PG_DB}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+    restart: always
+
+  inventory-db:
+    container_name: inventory-db
+    image: ${DB_IMAGE}
+    env_file:
+      - ./inventory/.production.env
+    environment:
+      POSTGRES_USER: ${INVENTORY_PG_USER}
+      POSTGRES_PASSWORD: ${INVENTORY_PG_PASS}
+      POSTGRES_DB: ${INVENTORY_PG_DB}
+      PG_DATA: ${PG_DATA}
+    ports:
+      - "${INVENTORY_PG_PORT}:5432"
+    volumes:
+      - type: volume
+        source: pgdata-inventory
+        target: ${PG_DATA}
+    restart: always
+
+volumes:
+  pgdata-inventory:
+    driver: local
