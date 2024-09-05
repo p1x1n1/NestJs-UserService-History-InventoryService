@@ -19,15 +19,15 @@
 
 1. Создайте файлы `.development.env` и `.production.env` в корневой директории проекта. Пример:
 
-   ```env
-USER_SERVICE_PORT        =4000
+   ```ini
+   USER_SERVICE_PORT        =4000
 
-USER_PORT                =4000
-USER_POSTGRES_HOST       =localhost
-USER_POSTGRES_USER       =postgres
-USER_POSTGRES_PASSWORD   =password
-USER_POSTGRES_PORT       =5432
-USER_POSTGRES_DB         =user_db
+   USER_PORT                =4000
+   USER_POSTGRES_HOST       =user-db
+   USER_POSTGRES_USER       =postgres
+   USER_POSTGRES_PASSWORD   =password
+   USER_POSTGRES_PORT       =5432
+   USER_POSTGRES_DB         =user_db
    ```
 
 2. Настройте другие переменные окружения в зависимости от ваших нужд.
