@@ -1,6 +1,10 @@
 import { ActionHistory } from "./actionHistory.model";
 import { AppDataSource } from "../db";
 import { Request, Response } from "express";
+import { validate } from "class-validator";
+import { CreateActionHistoryDto } from "./dto/create-action.dto";
+import { QueryRunner } from "typeorm";
+
 
 const actionHistoryRepository = AppDataSource.getRepository(ActionHistory);
 
@@ -29,23 +33,37 @@ class ActionHistoryService {
 
         res.json(history);
     };
-    async saveActionToHistory(message) {
-        const { action, plu, shop_id, date_, details } = JSON.parse(message);
-        console.log( JSON.parse(message),'\n',message)
 
-        const actionHistory = actionHistoryRepository.create({
-            action,
-            plu: plu || null, 
-            shop_id: shop_id || null,     
-            date_: date_ ? new Date(date_) : new Date(),
-            details: details || null
-        });
+    async saveActionToHistory(message: string) {
+        const queryRunner: QueryRunner = AppDataSource.createQueryRunner();
+        await queryRunner.connect();
 
-        // Сохраняем объект в базу данных
-        await actionHistoryRepository.save(actionHistory);
+        try {
 
-        console.log(`Action saved to history: ${message}`);
-    };
+            await queryRunner.startTransaction();
+
+            const { action, plu, shop_id, date_, details } = JSON.parse(message);
+
+            const actionHistory = actionHistoryRepository.create({
+                action,
+                plu: plu || null,
+                shop_id: shop_id || null,
+                date_: date_ ? new Date(date_) : new Date(),
+                details: details || null
+            });
+
+            await queryRunner.manager.save(actionHistory);
+
+
+            await queryRunner.commitTransaction();
+            console.log(`Action saved to history: ${message}`);
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+            console.error('Error saving action to history:', error);
+        } finally {
+            await queryRunner.release();
+        }
+    }
 }
 
 export default new ActionHistoryService();

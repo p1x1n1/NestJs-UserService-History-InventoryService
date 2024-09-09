@@ -3,8 +3,7 @@ const { publishMessage } = require('../rabbitmq');
 
 exports.createProduct = async (req, res) => {
     try {
-        const result = await productService.createProduct(req,res);
-        // Отправка сообщения в очередь
+        const result = await productService.createProduct(req, res);
         await publishMessage('actions-to-history', JSON.stringify({
             action: 'create-product',
             plu: result.plu,

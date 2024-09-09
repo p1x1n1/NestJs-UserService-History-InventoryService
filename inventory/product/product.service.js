@@ -3,10 +3,26 @@ const ApiError = require('../error/ApiError');
 
 // Создание товара
 exports.createProduct = async (req, res) => {
-    const { plu, name } = req.body;
-    if(plu && name) 
-        return (await pool.query('INSERT INTO products (plu, name) VALUES ($1, $2) RETURNING *', [plu, name])).rows[0];
-    throw ApiError.badRequest('Не указано название или артикул товара')
+    const client = await pool.connect();
+    try {
+        const { plu, name } = req.body;
+
+        if (!plu || !name) {
+            throw ApiError.badRequest('Не указано название или артикул товара');
+        }
+
+        await client.query('BEGIN'); 
+
+        const result = await client.query('INSERT INTO products (plu, name) VALUES ($1, $2) RETURNING *', [plu, name]);
+
+        await client.query('COMMIT'); 
+        res.json(result.rows[0]);
+    } catch (err) {
+        await client.query('ROLLBACK'); 
+        throw err;
+    } finally {
+        client.release(); 
+    }
 };
 
 // Получение товаров по фильтрам
